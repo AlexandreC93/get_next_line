@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lcadinot <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/29 22:01:58 by lcadinot          #+#    #+#             */
-/*   Updated: 2022/11/29 22:02:00 by lcadinot         ###   ########.fr       */
+/*   Created: 2022/11/29 22:01:51 by lcadinot          #+#    #+#             */
+/*   Updated: 2022/11/29 22:01:53 by lcadinot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*ft_this_line(char	*buffer)
 {
@@ -104,8 +104,8 @@ char	*ft_strjoin(char const *s1, char const *s2)
 
 char	*ft_read(int fd, char *res)
 {
-	int			size;
-	char		*buffer;
+	int		size;
+	char	*buffer;
 
 	size = 1;
 	buffer = ft_calloc(BUFFER_SIZE + 1, 1);
@@ -126,36 +126,47 @@ char	*ft_read(int fd, char *res)
 
 char	*get_next_line(int fd)
 {
-	static char	*buffer;
+	static char	*buffer[1024];
 	char		*line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0))
 		return (NULL);
-	buffer = ft_read(fd, buffer);
-	if (!buffer)
+	buffer[fd] = ft_read(fd, buffer[fd]);
+	if (!buffer[fd])
 		return (NULL);
-	line = ft_this_line(buffer);
-	if (!line)
-		return (NULL);
-	buffer = ft_next(buffer);
-	if (!buffer)
-		return (NULL);
+	line = ft_this_line(buffer[fd]);
+	buffer[fd] = ft_next(buffer[fd]);
 	return (line);
 }
 
 int	main(void)
 {
 	int	fd;
+    int fd2;
+    int i = 0;
 
 	char	*s;
+    char    *s2;
 
 	fd = open("text.txt", O_RDONLY);
+	fd2 = open("text2.txt", O_RDONLY);
 	s = get_next_line(fd);
-	while (s)
+    s2 = get_next_line(fd2);
+
+	while (i < 2)
 	{
 		printf("%s\n", s);
 		free(s);
 		s = get_next_line(fd);
+        i++;
+	}
+    i = 0;
+	while (i < 2)
+	{
+		printf("%s\n", s2);
+		free(s2);
+		s2 = get_next_line(fd2);
+        i++;
 	}
 	printf("%d", BUFFER_SIZE);
 	close(fd);
