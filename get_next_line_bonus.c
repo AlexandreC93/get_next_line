@@ -6,7 +6,7 @@
 /*   By: lcadinot <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/29 22:01:51 by lcadinot          #+#    #+#             */
-/*   Updated: 2022/11/29 22:01:53 by lcadinot         ###   ########.fr       */
+/*   Updated: 2022/12/01 22:08:49 by lcadinot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,7 @@ char	*ft_this_line(char	*buffer)
 
 	i = 0;
 	if (!buffer[i])
-	{
-		free(buffer);
 		return (NULL);
-	}
 	while (buffer[i] && buffer[i] != '\n')
 		i++;
 	line = ft_calloc(i + 2, 1);
@@ -44,14 +41,17 @@ char	*ft_next(char *buffer)
 	char	*line;
 
 	i = 0;
-	if (!buffer[i])
-		return (NULL);
 	while (buffer[i] && buffer[i] != '\n')
 		i++;
+	if (!buffer[i])
+	{
+		free(buffer);
+		return (NULL);
+	}
 	line = ft_calloc(ft_strlen(buffer) - i + 1, 1);
 	i++;
 	j = 0;
-	while (buffer[i])
+	while (buffer[i] != '\0')
 		line[j++] = buffer[i++];
 	free(buffer);
 	return (line);
@@ -111,11 +111,16 @@ char	*ft_read(int fd, char *res)
 	buffer = ft_calloc(BUFFER_SIZE + 1, 1);
 	if (!res)
 		res = ft_calloc(1, 1);
-	while (size != 0)
+	while (size > 0)
 	{
 		size = read(fd, buffer, BUFFER_SIZE);
+		//printf("%s", buffer);
 		if (size == -1)
+		{
+			free(buffer);
 			return (NULL);
+		}
+		buffer[size] = 0;
 		res = reajoin(res, buffer);
 		if (ft_strchr(buffer, '\n'))
 			break ;
@@ -153,15 +158,16 @@ int	main(void)
 	s = get_next_line(fd);
     s2 = get_next_line(fd2);
 
-	while (i < 2)
+	while (i < 20)
 	{
 		printf("%s\n", s);
 		free(s);
 		s = get_next_line(fd);
         i++;
 	}
+	write(1, "CHECK", 5);
     i = 0;
-	while (i < 2)
+	while (i < 20)
 	{
 		printf("%s\n", s2);
 		free(s2);
@@ -172,3 +178,4 @@ int	main(void)
 	close(fd);
 	return (0);
 }
+

@@ -57,9 +57,7 @@ char	*ft_strchr(const char *str, int c)
 	while (str[i])
 	{
 		if (str[i] == c)
-		{
 			return ((char *)str + i);
-		}
 		i++;
 	}
 	if (c == '\0')

@@ -6,7 +6,7 @@
 /*   By: lcadinot <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/29 22:01:58 by lcadinot          #+#    #+#             */
-/*   Updated: 2022/11/29 22:02:00 by lcadinot         ###   ########.fr       */
+/*   Updated: 2022/12/01 22:12:18 by lcadinot         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,7 @@ char	*ft_this_line(char	*buffer)
 
 	i = 0;
 	if (!buffer[i])
-	{
-		free(buffer);
 		return (NULL);
-	}
 	while (buffer[i] && buffer[i] != '\n')
 		i++;
 	line = ft_calloc(i + 2, 1);
@@ -44,14 +41,17 @@ char	*ft_next(char *buffer)
 	char	*line;
 
 	i = 0;
-	if (!buffer[i])
-		return (NULL);
 	while (buffer[i] && buffer[i] != '\n')
 		i++;
+	if (!buffer[i])
+	{
+		free(buffer);
+		return (NULL);
+	}
 	line = ft_calloc(ft_strlen(buffer) - i + 1, 1);
 	i++;
 	j = 0;
-	while (buffer[i])
+	while (buffer[i] != '\0')
 		line[j++] = buffer[i++];
 	free(buffer);
 	return (line);
@@ -111,11 +111,16 @@ char	*ft_read(int fd, char *res)
 	buffer = ft_calloc(BUFFER_SIZE + 1, 1);
 	if (!res)
 		res = ft_calloc(1, 1);
-	while (size != 0)
+	while (size > 0)
 	{
 		size = read(fd, buffer, BUFFER_SIZE);
+		//printf("%s", buffer);
 		if (size == -1)
+		{
+			free(buffer);
 			return (NULL);
+		}
+		buffer[size] = 0;
 		res = reajoin(res, buffer);
 		if (ft_strchr(buffer, '\n'))
 			break ;
@@ -135,29 +140,27 @@ char	*get_next_line(int fd)
 	if (!buffer)
 		return (NULL);
 	line = ft_this_line(buffer);
-	if (!line)
-		return (NULL);
 	buffer = ft_next(buffer);
-	if (!buffer)
-		return (NULL);
 	return (line);
 }
 
 int	main(void)
 {
 	int	fd;
+	int	i = 0;
 
-	char	*s;
+	//char	*s;
 
 	fd = open("text.txt", O_RDONLY);
-	s = get_next_line(fd);
-	while (s)
+	//s = get_next_line(fd);
+	while (i < 20)
 	{
-		printf("%s\n", s);
-		free(s);
-		s = get_next_line(fd);
+		printf("%s\n", get_next_line(fd));
+		i++;
+		// free(s);
 	}
 	printf("%d", BUFFER_SIZE);
 	close(fd);
 	return (0);
 }
+
